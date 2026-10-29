@@ -119,6 +119,52 @@ async function publishPost(){
   toast('پست در ویستا ذخیره شد ❤️');
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
+const vistaSignupForm = document.getElementById("vista-signup-form");
+
+if (vistaSignupForm) {
+  vistaSignupForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const message = document.getElementById("vista-signup-message");
+    const button = vistaSignupForm.querySelector('button[type="submit"]');
+
+    const displayName = document.getElementById("vista-display").value.trim();
+    const username = document.getElementById("vista-username").value.trim().toLowerCase();
+    const email = document.getElementById("vista-email").value.trim();
+    const password = document.getElementById("vista-password").value;
+
+    message.textContent = "در حال ساخت حساب...";
+    button.disabled = true;
+
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          emailRedirectTo: "https://drvlogtor5-spec.github.io/vista-android/",
+          data: {
+            display_name: displayName,
+            username: username
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      message.textContent = data.session
+        ? "حساب ویستا ساخته شد! ✨"
+        : "ثبت‌نام انجام شد! ایمیلت را برای تأیید حساب بررسی کن. 📩";
+
+      vistaSignupForm.reset();
+    } catch (error) {
+      message.textContent = "خطا: " + error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
 </script>
 </body>
 </html>
